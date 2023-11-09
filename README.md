@@ -34,5 +34,5 @@ add the following config to `.vscode/launch.json`
 
 `/ping/<asset>` all ping tags from all machines.   
 
-`/<asset>/counter/#` all counter tags for one asset
+`/counter/<asset>` all counter tags for one asset
 
