@@ -142,10 +142,13 @@ class DataTag(Tag):
             if self.last_value == None:
                 logger.info(f'First pass through: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
                 logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
+                topic, payload = self.format_output(self.parent.name, value[0].TagName, data_point)
+                from main import handle_update
+                handle_update(topic, payload)
                 self.last_value = data_point
             elif data_point != self.last_value:
                 logger.info(f'Posting Data: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
-                topic, payload = self.format_output(value[0].TagName, data_point)
+                topic, payload = self.format_output(self.parent.name, value[0].TagName, data_point)
                 logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
                 from main import handle_update
                 handle_update(topic, payload)
@@ -161,12 +164,12 @@ class DataTag(Tag):
             
 
             
+#data/parent.name/tagname/data_point
 
-
-    def format_output(self, tag, count):
+    def format_output(self, name, tag, data_point):
         # create entry for new value
         
-        topic = f'data/{count}/'
-        data = json.dumps({"data":count})
+        topic = f'data/{name}/{tag}/{data_point}/'
+        data = json.dumps({"data":data_point})
         return topic, data
 
