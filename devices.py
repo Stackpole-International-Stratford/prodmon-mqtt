@@ -65,10 +65,15 @@ class PylogixDevice(Device):
             new_tag_object = PingTag(parent, name, tag_name, frequency)
 
         elif tag_type == 'data':
-            raise NotImplementedError
-            # name = tag.get('name', None)
-            # strategy = tag.get('strategy', None)
-            # new_tag_object = DataTag(parent, tag_name, scale, db_table, name, strategy)
+            
+            scale = tag.get('scale', 1)
+            machine = tag.get('machine', None)
+
+            part_number_text_tag = tag.get('part_number_text', None)
+            part_number_index_tag = tag.get('part_number_index', None)
+            part_dict = tag.get('part_dict', None)
+
+            new_tag_object = DataTag(parent, tag_name, scale, frequency, machine, part_number_text_tag, part_number_index_tag, part_dict)
 
         else:
             raise NotImplementedError
@@ -104,6 +109,7 @@ class ModbusDevice(Device):
         frequency = max(self.frequency, frequency)
         db_table = tag.get('table', None)
         parent = self
+        tag_name = tag.get('tag', None)
 
         if tag_type == 'ADAM_counter':
             raise NotImplementedError
@@ -116,10 +122,14 @@ class ModbusDevice(Device):
             tag_object = PingTag(parent, name, register, frequency, db_table)
 
         elif tag_type == 'data':
-            raise NotImplementedError
-            # name = tag.get('name', None)
-            # strategy = tag.get('strategy', None)
-            # tag_object = DataTag(parent, None, frequency, db_table, strategy)
+            scale = tag.get('scale', 1)
+            machine = tag.get('machine', None)
+
+            part_number_text_tag = tag.get('part_number_text', None)
+            part_number_index_tag = tag.get('part_number_index', None)
+            part_dict = tag.get('part_dict', None)
+
+            new_tag_object = DataTag(parent, tag_name, scale, frequency, machine, part_number_text_tag, part_number_index_tag, part_dict)
 
         super().add_data_point(tag_object)
 

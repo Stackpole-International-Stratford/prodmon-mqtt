@@ -31,7 +31,9 @@ def read_config():
             raise NotImplementedError
             # device_entry = ModbusDevice(name, ip, frequency)
 
+        #logger.info(f'Device tags are {device["tags"]}')
         for tag in device['tags']:
+            
             device_entry.add_data_point(tag)
 
         devices.append(device_entry)
@@ -59,6 +61,7 @@ def handle_update(topic, payload):
     result = mqtt_client.publish(topic, payload, 2)
 
     status = result[0]
+    #logger.info(f"tried sending {topic} : {payload}")
 
     if status == 0:
         logger.info(f"Sent {topic} : {payload}")
