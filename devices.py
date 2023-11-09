@@ -66,14 +66,8 @@ class PylogixDevice(Device):
 
         elif tag_type == 'data':
             
-            scale = tag.get('scale', 1)
-            machine = tag.get('machine', None)
-
-            part_number_text_tag = tag.get('part_number_text', None)
-            part_number_index_tag = tag.get('part_number_index', None)
-            part_dict = tag.get('part_dict', None)
-
-            new_tag_object = DataTag(parent, tag_name, scale, frequency, machine, part_number_text_tag, part_number_index_tag, part_dict)
+            name = tag.get('name', None)
+            new_tag_object = DataTag(parent, name, tag_name, frequency)
 
         else:
             raise NotImplementedError
@@ -122,14 +116,9 @@ class ModbusDevice(Device):
             tag_object = PingTag(parent, name, register, frequency, db_table)
 
         elif tag_type == 'data':
-            scale = tag.get('scale', 1)
-            machine = tag.get('machine', None)
-
-            part_number_text_tag = tag.get('part_number_text', None)
-            part_number_index_tag = tag.get('part_number_index', None)
-            part_dict = tag.get('part_dict', None)
-
-            new_tag_object = DataTag(parent, tag_name, scale, frequency, machine, part_number_text_tag, part_number_index_tag, part_dict)
+           #name = tag.get('name', None)
+           #tag_object = DataTag(parent, name, register, frequency, db_table)
+           pass
 
         super().add_data_point(tag_object)
 
