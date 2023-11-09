@@ -136,25 +136,25 @@ class DataTag(Tag):
             if error_flag:
                 return
             
-            count = value[0].Value
+            data_point = value[0].Value
             
-            
-            if count != self.last_value:
 
-                if self.last_value == 0:
-                    logger.info(f'Counter Rolled over: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{count})')
-                    topic, payload = self.format_output(value[0].TagName, count)
-                    logger.debug(f'Create enrty for ({value[0].TagName}:{count})')
-                    from main import handle_update
-                    handle_update(topic, payload)
-                else:
-                    logger.info(f'First pass through: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{count})')
-                    topic, payload = self.format_output(value[0].TagName, count)
-                    logger.debug(f'Create enrty for ({value[0].TagName}:{count})')
-                    from main import handle_update
-                    handle_update(topic, payload)
-                self.last_value = count
-                return
+            if self.last_value == None:
+                logger.info(f'First pass through: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
+                logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
+                self.last_value = data_point
+            elif data_point != self.last_value:
+                logger.info(f'Posting Data: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
+                topic, payload = self.format_output(value[0].TagName, data_point)
+                logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
+                from main import handle_update
+                handle_update(topic, payload)
+                self.last_value = data_point
+            
+
+            
+            
+            
 
                 
 
@@ -166,7 +166,7 @@ class DataTag(Tag):
     def format_output(self, tag, count):
         # create entry for new value
         
-        topic = f'/data/{count}/'
+        topic = f'data/{count}/'
         data = json.dumps({"data":count})
         return topic, data
 
