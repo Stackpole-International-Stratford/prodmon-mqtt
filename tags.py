@@ -44,7 +44,7 @@ class PingTag(Tag):
             handle_update(topic, payload)
 
     def format_output(self, timestamp, value):
-        topic = f'/ping/{self.name}'
+        topic = f'ping/{self.name}'
         data = json.dumps({"timestamp":timestamp})
         return topic, data
 
@@ -104,7 +104,7 @@ class CounterTag(Tag):
     def format_output(self, count, part, timestamp):
         # create entry for new value
         machine = self.db_machine_data
-        topic = f'/counter/{machine}/'
+        topic = f'counter/{machine}/'
         payload = {
             "asset": machine,
             "part": part,
