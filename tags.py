@@ -41,7 +41,15 @@ class PingTag(Tag):
             topic, payload = self.format_output(timestamp, value[0].TagName)
             logger.debug(f'Create PING for {self.name} ({timestamp})')
             from main import handle_update
-            handle_update(topic, payload)
+
+            result = self.parent.client.publish(topic, payload, 2)
+            status = result[0]
+
+            if status == 0:
+                logger.info(f"Sent {topic} : {payload}")
+            else:
+                logger.warning(f"MQTT send failed {topic} {payload}")
+
 
     def format_output(self, timestamp, value):
         topic = f'ping/{self.name}'
@@ -96,15 +104,21 @@ class CounterTag(Tag):
             for part_count in range(self.last_value + 1, count + 1):
                 topic, payload = self.format_output(part_count, part, int(timestamp))
                 logger.debug(f'Create enrty for {self.db_machine_data} ({part}:{part_count})')
-                from main import handle_update
-                handle_update(topic, payload)
+                result = self.parent.client.publish(topic, payload, 2)
+                status = result[0]
+
+                if status == 0:
+                    logger.info(f"Sent {topic} : {payload}")
+                else:
+                    logger.warning(f"MQTT send failed ({status}) {topic} {payload}")
+
 
             self.last_value = count
 
     def format_output(self, count, part, timestamp):
         # create entry for new value
         machine = self.db_machine_data
-        topic = f'counter/{machine}/'
+        topic = f'counter/{machine}'
         payload = {
             "asset": machine,
             "part": part,
