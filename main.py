@@ -58,7 +58,7 @@ def read_config_file(config_key=None):
 
 def handle_update(topic, payload):
 
-    result = mqtt_client.publish(topic, payload, 2)
+    result = client.publish(topic, payload, 2)
 
     status = result[0]
     #logger.info(f"tried sending {topic} : {payload}")
@@ -75,57 +75,60 @@ MAX_RECONNECT_COUNT = 12
 MAX_RECONNECT_DELAY = 60
 FLAG_EXIT = False
 
-def connect_mqtt():
-    broker = 'pmdsdata12'
-    port = 1883
-    client_id = f'python-mqtt-{random.randint(0, 1000)}'
-    # username = 'emqx'
-    # password = 'public'
 
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            logger.info("Connected to MQTT Broker!")
-        else:
-            logger.info("Failed to connect, return code %d\n", rc)
-
-    # Set Connecting Client ID
-    client = mqtt_client.Client(client_id)
-    # client.username_pw_set(username, password)
-    client.on_connect = on_connect
-    client.connect(broker, port)
-    return client
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        logger.info('Connected to MQTT Broker!')
+    else:
+        logger.info(f'Failed to connect, return code {rc}\n')
 
 def on_disconnect(client, userdata, rc):
-    logger.warning("Disconnected with result code: %s", rc)
+    logger.warning(f'Disconnected with result code: {rc}')
     reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
     while reconnect_count < MAX_RECONNECT_COUNT:
-        logger.warning("Reconnecting in %d seconds...", reconnect_delay)
+        logger.warning(f'Reconnecting in {reconnect_delay} seconds...')
         time.sleep(reconnect_delay)
 
         try:
             client.reconnect()
-            logger.warning("Reconnected successfully!")
+            logger.warning('Reconnected successfully!')
             return
         except Exception as err:
-            logger.error("%s. Reconnect failed. Retrying...", err)
+            logger.error(f'{err}. Reconnect failed. Retrying...')
 
         reconnect_delay *= RECONNECT_RATE
         reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
         reconnect_count += 1
-    logger.error("Reconnect failed after %s attempts. Exiting...", reconnect_count)
+    logger.error('Reconnect failed after {reconnect_count} attempts. Exiting...')
     global FLAG_EXIT
     FLAG_EXIT = True
-
-mqtt_client = connect_mqtt()
 
 @logger.catch
 def main():
     devices = read_config()
 
+    broker = 'pmdsdata12'
+    port = 1883
+    client_id = f'mqtt-pub'
+    # username = 'emqx'
+    # password = 'public'
+
+    # Set Connecting Client ID
+    global client
+    client = mqtt_client.Client(client_id)
+    # client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    # client.loop_start()
+    client.connect(broker, port)
+
     while not FLAG_EXIT:
         for device in devices:
+            device.client = client
             device.poll_tags()
+            client.loop()
 
+    client.loop_stop()
 
 if __name__ == "__main__":
 

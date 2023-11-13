@@ -12,7 +12,7 @@ devices:
       - type: ping
         name: 'test-ping'
         tag: 'Program:MainProgram.ProdCount.ACC'
-        frequency: 300 # optional
+        frequency: 10 # optional
 
       - type: counter
         name: 'test-count'  # name for data point
