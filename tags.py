@@ -40,7 +40,6 @@ class PingTag(Tag):
                 return
             topic, payload = self.format_output(timestamp, value[0].TagName)
             logger.debug(f'Create PING for {self.name} ({timestamp})')
-            from main import handle_update
 
             result = self.parent.client.publish(topic, payload, 2)
             status = result[0]
@@ -53,7 +52,8 @@ class PingTag(Tag):
 
     def format_output(self, timestamp, value):
         topic = f'ping/{self.name}'
-        data = json.dumps({"timestamp":timestamp})
+        data = json.dumps({"timestamp":timestamp,
+                           "name":self.parent.name})
         return topic, data
 
 
@@ -155,35 +155,29 @@ class DataTag(Tag):
 
             if self.last_value == None:
                 logger.info(f'First pass through: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
-                logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
-                topic, payload = self.format_output(self.parent.name, value[0].TagName, self.name, data_point)
-                from main import handle_update
-                handle_update(topic, payload)
-                self.last_value = data_point
-            elif data_point != self.last_value:
-                logger.info(f'Posting Data: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
-                topic, payload = self.format_output(self.parent.name, value[0].TagName, self.name, data_point)
-                logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
-                from main import handle_update
-                handle_update(topic, payload)
-                self.last_value = data_point
-            
-
-            
-            
-            
-
                 
+            if data_point != self.last_value:
+                logger.info(f'Posting Data: Successfully read {self.parent.name}:{self.address} ({value[0].TagName}:{data_point})')
 
-            
+                topic, payload = self.format_output(self.parent.name, value[0].TagName, self.name, data_point)
+                logger.debug(f'Create enrty for ({value[0].TagName}:{data_point})')
 
-            
+                result = self.parent.client.publish(topic, payload, 2)
+                status = result[0]
+
+                if status == 0:
+                    logger.info(f"Sent {topic} : {payload}")
+                else:
+                    logger.warning(f"MQTT send failed ({status}) {topic} {payload}")
+
+            self.last_value = data_point
+             
 #data/parent.name/tagname/data_point
 
     def format_output(self, name, tag, data_name, data_point):
         # create entry for new value
         
-        topic = f'data/{name}/{tag}/{data_name}/'
+        topic = f'data/{name}/{data_name}/'
         data = json.dumps({"data":data_point, "tag": tag})
         return topic, data
 

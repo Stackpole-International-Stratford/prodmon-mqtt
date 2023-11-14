@@ -12,13 +12,13 @@ devices:
       - type: ping
         name: 'test-ping'
         tag: 'Program:MainProgram.ProdCount.ACC'
-        frequency: 10 # optional
+        frequency: 300          # optional
 
       - type: counter
-        name: 'test-count'  # name for data point
+        name: 'test-count'      # name for data point
         tag: 'Program:MainProgram.ProdCount.ACC'  # PLC tag name
-        machine: 1530       # machine number for database entry
-        scale: 1            # number of parts made per cycle
+        machine: TEST1          # machine number for database entry
+        scale: 1                # number of parts made per cycle
 
         # to get the part type, specify either:
         # a part_number_text tag
@@ -28,10 +28,9 @@ devices:
         part_dict:
           0: '50-0455'
           1: '50-9341'
-
-        frequency: 5        # optional, defaults to device freq
+        frequency: 10        # optional, defaults to device freq
 
       - type: data
-        name: 'point1'  # name for data point
+        name: 'DataPoint1'  # name for data point
         tag: 'Program:MainProgram.ProdCount.ACC'  # PLC tag name
         frequency: 1        # optional, defaults to device freq
